@@ -1,0 +1,53 @@
+name: book_iq
+description: "A new Flutter project."
+publish_to: 'none' 
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.7
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+
+  cupertino_icons: ^2.0.0
+  provider: ^6.1.5+1
+  shared_preferences: ^2.5.6
+  printing: ^5.15.1
+  syncfusion_flutter_pdfviewer: ^35.1.43
+  path_provider: ^2.1.6
+  flutter_screenutil: ^5.9.3
+  share_plus: ^13.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+  flutter_lints: 
+
+flutter:
+  uses-material-design: true
+
+  # Assets
+  assets:
+    - assets/pdf/
+
+
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+
