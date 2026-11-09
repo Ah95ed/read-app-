@@ -19,7 +19,7 @@ import 'presentation/controllers/app_settings_controller.dart';
 import 'presentation/controllers/pdf_controller.dart';
 import 'presentation/views/pdf_viewer_view.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Core Services
