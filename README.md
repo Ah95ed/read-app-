@@ -1,17 +1,165 @@
-# book_iq
+# 📖 قارئ الكتب الذكي | Smart Book Reader (Book IQ)
 
-A new Flutter project.
+تطبيق متطور ومفتوح لقراءة ملفات الـ **PDF** والكتب الرقمية، مبني باستخدام إطار عمل **Flutter** وفق أحدث معايير هندسة البرمجيات **Clean Architecture** مع نمط **MVC**، وإدارة الحالة عبر **Provider**، وتصميم متجاوب تماماً لكل الشاشات عبر **flutter_screenutil**.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🌟 نظرة عامة (Overview)
 
-A few resources to get you started if this is your first Flutter project:
+تم تصميم التطبيق ليوفر تجربة قراءة فريدة وسلسة لكتب الـ PDF؛ حيث يدمج بين الأداء العالي والواجهة البسيطة والأنيقة، مع مراعاة راحة العين وسهولة التنقل، وحفظ تقدم القارئ تلقائياً دون الحاجة لأي تدخل يدوي.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+### 🎯 الميزات الرئيسية
+- ⚡ **معمارية برمجية نقية (Clean Architecture)**: فصل صارم للمسؤوليات بين منطق الأعمال، وطبقة البيانات، وطبقة العرض.
+- 📱 **واجهة متكيفة ومتجاوبة (Adaptive UI)**: ملائمة لجميع أحجام شاشات الهواتف الذكية (Mobile)، الأجهزة اللوحية (Tablets)، وسطح المكتب (Windows Desktop).
+- 🔢 **انتقال مباشر وفوري للصفحات**:
+  - كتابة رقم أي صفحة (مثل 10 أو 30 أو 52) والضغط على **Enter** من لوحة المفاتيح أو زر **موافق** للانتقال الفوري.
+  - تحقق ذكي من نطاق الصفحات المتاحة وأزرار انتقال سريعة (البداية، المنتصف، النهاية).
+- 💾 **حفظ موضع القراءة تلقائياً (Auto-Save Reading Position)**:
+  - يتذكر التطبيق تلقائياً آخر صفحة وصلت إليها (مثلاً صفحة 15 أو 16) ويستأنف القراءة منها فور فتح التطبيق مع إشعار توضيحي.
+- 🔍 **تحكم كامل بالتكبير والتصغير (Zoom Controls)**:
+  - أزرار تكبير وتصغير عائمة (+ / -) وإعادة ضبط سريعة (100%).
+  - دعم التكبير باللمس بالأصابع (Pinch-to-zoom) والنقر المزدوج (Double-tap zoom).
+- 🖨️ **الطباعة المباشرة (Direct Printing)**:
+  - إرسال المستند مباشرة إلى الطابعات المتصلة مع دعم إعدادات الطباعة للنظام الأصلي.
+- 📡 **المشاركة عبر البلوتوث وتطبيقات التواصل (Sharing)**:
+  - مشاركة ملف الكتاب مباشرة عبر **البلوتوث (Bluetooth)** أو برامج التواصل كـ **واتساب (WhatsApp)**، **تيليجرام (Telegram)**، **البريد الإلكتروني**، و **Quick Share**.
+- 📜 **أوضاع التمرير (Scroll Modes)**:
+  - التبديل بين التمرير الرأسي المستمر (Vertical Continuous) أو التصفح الأفقي صفحة بصفحة (Horizontal Page-by-Page).
+- 🎨 **ثيمات مريحة للقراءة (Reading Themes)**:
+  - الوضع الفاتح (Light Mode).
+  - الوضع الداكن (Dark Mode).
+  - وضع السيبيا المريح للعين أثناء القراءة الطويلة (Sepia Eye-Care).
+- 🌐 **دعم كامل للترجمة واللغات (Localization)**:
+  - دعم أصلي للغتين **العربية (افتراضي)** و **الإنجليزية** مع اتجاه كتابة RTL/LTR وتغيير اللغة الفوري داخل التطبيق.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 🏛️ الهيكلية المعمارية (Architecture Breakdown)
+
+يتبع المشروع معمارية **Clean Architecture** مقسمة إلى أربع طبقات رئيسية لضمان الاستقلالية وقابلية الاختبار:
+
+```text
+lib/
+├── core/                                # الطبقة المشتركة الأساسية
+│   ├── constants/                       # الثوابت ومسارات الملفات والألوان
+│   │   ├── app_constants.dart
+│   │   └── app_colors.dart
+│   ├── localization/                    # نظام الترجمة والتعريب
+│   │   ├── app_localizations.dart
+│   │   ├── translations_ar.dart
+│   │   └── translations_en.dart
+│   ├── theme/                           # أنماط ومظاهر التطبيق
+│   │   └── app_theme.dart
+│   └── services/                        # الخدمات الأساسية (تخزين، طباعة، مشاركة)
+│       ├── storage_service.dart
+│       ├── print_service.dart
+│       └── share_service.dart
+│
+├── domain/                              # طبقة النطاق (Pure Business Logic)
+│   ├── entities/                        # الكينونات البرمجية
+│   │   └── reader_settings.dart
+│   ├── repositories/                    # عقود المستودعات (Interfaces)
+│   │   └── pdf_repository.dart
+│   └── usecases/                        # حالات الاستخدام
+│       ├── get_saved_page_usecase.dart
+│       ├── save_page_usecase.dart
+│       ├── print_pdf_usecase.dart
+│       └── share_pdf_usecase.dart
+│
+├── data/                                # طبقة البيانات
+│   ├── datasources/                     # مصادر البيانات المحلية
+│   │   └── pdf_local_datasource.dart
+│   ├── models/                          # نماذج البيانات
+│   │   └── reader_settings_model.dart
+│   └── repositories/                    # تطبيق عقود المستودع
+│       └── pdf_repository_impl.dart
+│
+├── presentation/                        # طبقة العرض والتحكم (MVC + Provider)
+│   ├── controllers/                     # المتحكمات
+│   │   ├── pdf_controller.dart          # إدارة حالة القارئ والانتقال والحفظ
+│   │   └── app_settings_controller.dart # إدارة الثيم واللغة
+│   ├── views/                           # الشاشات الرئيسية
+│   │   └── pdf_viewer_view.dart
+│   └── widgets/                         # العناصر التفاعلية
+│       ├── pdf_top_app_bar.dart         # الشريط العلوي
+│       ├── pdf_bottom_bar.dart          # شريط التنقل والتكبير
+│       ├── jump_to_page_dialog.dart     # نافذة الانتقال المباشر
+│       ├── zoom_controls_widget.dart    # أدوات التكبير
+│       └── settings_bottom_sheet.dart   # قائمة الإعدادات
+│
+└── main.dart                            # نقطة الدخول وتهيئة الـ Providers
+```
+
+---
+
+## 📦 حزم ومكتبات المشروع (Dependencies)
+
+تم استخدام أحدث الإصدارات المستقرة المتوافقة مع Flutter 3:
+
+| الحزمة | الإصدار | الغرض منها |
+| :--- | :--- | :--- |
+| **`flutter_screenutil`** | `^5.9.3` | قياسات الشاشات التكيفية والتجاوب مع جميع المقاسات |
+| **`provider`** | `^6.1.5+1` | إدارة الحالة (State Management) |
+| **`syncfusion_flutter_pdfviewer`** | `^35.1.43` | محرك عرض ومعالجة ملفات الـ PDF |
+| **`printing`** | `^5.15.1` | إدارة عمليات الطباعة المباشرة للمستند |
+| **`share_plus`** | `^13.3.1` | مشاركة الملفات عبر البلوتوث والتطبيقات الخارجية |
+| **`shared_preferences`** | `^2.5.6` | التخزين الدائم لآخر صفحة تمت قراءتها والإعدادات |
+| **`path_provider`** | `^2.1.6` | الوصول الآمن لمسارات الملفات المؤقتة في النظام |
+
+---
+
+## 🚀 تشغيل المشروع (Getting Started)
+
+### متطلبات البيئة:
+- تثبيت [Flutter SDK](https://flutter.dev) (الإصدار 3.24 أو أحدث).
+- بيئة تطوير: VS Code أو Android Studio أو Cursor.
+
+### خطوات التشغيل:
+
+1. **تثبيت الحزم والمكتبات**:
+   ```bash
+   flutter pub get
+   ```
+
+2. **تشغيل الفحص والتحليل البرمجي**:
+   ```bash
+   flutter analyze
+   ```
+
+3. **تشغيل الاختبارات الآلية**:
+   ```bash
+   flutter test
+   ```
+
+4. **تشغيل التطبيق**:
+   - للتشغيل على سطح المكتب (Windows):
+     ```bash
+     flutter run -d windows
+     ```
+   - للتشغيل على جهاز هاتف أو محاكي (Android/iOS):
+     ```bash
+     flutter run
+     ```
+
+---
+
+## 📄 ملف الكتاب الافتراضي (Assets)
+الملف الافتراضي المرفق مع التطبيق موجود في المسار:
+```text
+assets/pdf/c1.pdf
+```
+تم تعريفه وتفعيله داخل `pubspec.yaml`.
+
+---
+
+## 🧪 الاختبارات الآلية (Unit & Widget Tests)
+يحتوي المشروع على اختبارات تغطي:
+- ✅ نافذة الانتقال السريع `JumpToPageDialog` والتحقق من أرقام الصفحات.
+- ✅ أدوات التكبير والتصغير `ZoomControlsWidget`.
+- ✅ حالات استخدام النطاق: `SavePageUseCase`, `GetSavedPageUseCase`, `PrintPdfUseCase`, `SharePdfUseCase`.
+- ✅ صحة واستبدال نصوص التعريب والترجمة باللغتين العربية والإنجليزية.
+
+---
+
+## 👨‍💻 الرخصة والملاحظات
+هذا المشروع تم بناؤه بأعلى معايير جودة الكود، بدون أي تحذيرات أو أخطاء برمجية، ومجهز للاستخدام المباشر والتطوير المستقبلي.
