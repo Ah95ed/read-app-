@@ -70,6 +70,7 @@ class _PdfViewerViewState extends State<PdfViewerView> {
           child: Scaffold(
             appBar: const PdfTopAppBar(),
             body: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Expandable In-Book Search Bar
                 Selector<PdfReaderController, bool>(
@@ -83,12 +84,11 @@ class _PdfViewerViewState extends State<PdfViewerView> {
                 // Main PDF Viewport
                 Expanded(
                   child: Stack(
+                    fit: StackFit.expand,
                     children: [
                       // Isolated PDF Canvas: NEVER rebuilds on page flips or UI state changes!
-                      const Positioned.fill(
-                        child: RepaintBoundary(
-                          child: _SmoothPdfCanvas(),
-                        ),
+                      const RepaintBoundary(
+                        child: _SmoothPdfCanvas(),
                       ),
 
                       // Resumed reading banner listener
