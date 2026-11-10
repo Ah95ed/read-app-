@@ -2,7 +2,19 @@
 const Map<String, String> translationsEn = {
   // App
   'app_title': 'Smart Book Reader',
+  'app_subtitle': 'Your Interactive Reading & Activity Library',
   'book_title': 'Reader Book',
+
+  // Book Selection
+  'choose_book': 'Choose a Book to Continue',
+  'reading_book_title': 'Reading Book',
+  'reading_book_desc': 'Primary curriculum textbook for reading and study',
+  'activity_book_title': 'Activity Book',
+  'activity_book_desc': 'Workbook for exercises, practice, and activities',
+  'open_book': 'Open Book',
+  'continue_from_page': 'Continue from page {page}',
+  'start_reading': 'Start Reading',
+  'back_to_books': 'Back to Books',
 
   // Actions
   'ok': 'OK',
@@ -15,6 +27,15 @@ const Map<String, String> translationsEn = {
   'share': 'Share',
   'reset': 'Reset',
 
+  // Search
+  'search': 'Search in Book',
+  'search_hint': 'Search for a word or sentence...',
+  'no_search_results': 'No matching results',
+  'searching': 'Searching...',
+  'previous_result': 'Previous Result',
+  'next_result': 'Next Result',
+  'search_results_count': '{current} of {total}',
+
   // Sharing
   'share_document': 'Share Document (Bluetooth, Apps, ...)',
   'share_pdf_subject': 'Share PDF Book',
@@ -25,6 +46,8 @@ const Map<String, String> translationsEn = {
   // Page Navigation
   'page': 'Page',
   'page_x_of_y': 'Page {current} of {total}',
+  'previous_page': 'Previous Page',
+  'next_page': 'Next Page',
   'jump_to_page': 'Jump to Page',
   'enter_page_number': 'Enter page number (1 - {total})',
   'page_number_hint': 'e.g. 10, 30, or 52',
@@ -45,10 +68,14 @@ const Map<String, String> translationsEn = {
   'zoom_out': 'Zoom Out',
   'zoom_reset': 'Reset Zoom',
 
-  // Scroll mode
-  'scroll_direction': 'Scroll Mode',
-  'vertical_scroll': 'Vertical Continuous',
-  'horizontal_scroll': 'Horizontal (Page by page)',
+  // Scroll & Interaction modes
+  'scroll_direction': 'Scroll & Page Flip Mode',
+  'vertical_scroll': 'Vertical Smooth',
+  'horizontal_scroll': 'Horizontal Smooth',
+  'single_page_flip': 'Page-by-Page Flip',
+  'interaction_mode': 'Touch & Drag Mode',
+  'pan_mode': 'Smooth Pan (Hand)',
+  'selection_mode': 'Text Selection',
 
   // Printing
   'print_document': 'Print Document',

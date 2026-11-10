@@ -12,8 +12,11 @@ abstract class IPdfRepository {
   /// Retrieves full reader settings
   Future<ReaderSettings> getReaderSettings();
 
-  /// Saves scroll direction preference
-  Future<bool> saveScrollDirection(bool isVertical);
+  /// Saves scroll mode preference
+  Future<bool> saveScrollMode(ReaderScrollMode mode);
+
+  /// Retrieves scroll mode preference
+  Future<ReaderScrollMode> getScrollMode();
 
   /// Saves theme preference
   Future<bool> saveThemeMode(String mode);

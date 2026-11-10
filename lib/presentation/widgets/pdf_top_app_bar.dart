@@ -4,41 +4,65 @@ import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_localizations.dart';
+import '../../domain/entities/reader_settings.dart';
 import '../controllers/pdf_controller.dart';
 import 'jump_to_page_dialog.dart';
 import 'settings_bottom_sheet.dart';
 
 class PdfTopAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
+  final VoidCallback? onBackPressed;
 
   const PdfTopAppBar({
     super.key,
-    required this.title,
+    this.onBackPressed,
   });
 
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight.h.clamp(52.0, 68.0));
 
+  IconData _scrollModeIcon(ReaderScrollMode mode) {
+    switch (mode) {
+      case ReaderScrollMode.verticalContinuous:
+        return Icons.view_headline_rounded;
+      case ReaderScrollMode.horizontalContinuous:
+        return Icons.view_carousel_rounded;
+      case ReaderScrollMode.singlePage:
+        return Icons.auto_stories_outlined;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final pdfCtrl = context.watch<PdfReaderController>();
+    final book = pdfCtrl.currentBook;
+    final bookTitle = context.tr(book.titleKey);
+    final isWideScreen = MediaQuery.sizeOf(context).width >= 620;
 
     return AppBar(
-      titleSpacing: 10.w,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back_rounded, size: 22.sp),
+        tooltip: context.tr('back_to_books'),
+        onPressed: () async {
+          await pdfCtrl.flushSave();
+          if (onBackPressed != null) {
+            onBackPressed!();
+          } else if (context.mounted) {
+            Navigator.of(context).pop();
+          }
+        },
+      ),
+      titleSpacing: 4.w,
       title: Row(
         children: [
-          // Book icon
           Icon(
-            Icons.menu_book_rounded,
-            color: AppColors.primary,
-            size: 22.sp,
+            book.icon,
+            color: book.accentColor,
+            size: 20.sp,
           ),
-          SizedBox(width: 8.w),
-
-          // Title text
+          SizedBox(width: 6.w),
           Expanded(
             child: Text(
-              title,
+              bookTitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
@@ -47,10 +71,10 @@ class PdfTopAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        // Prominent Jump-to-Page Chip (Page X of Y)
+        // Prominent Jump-to-Page Chip (Page X / Y)
         if (pdfCtrl.totalPages > 0)
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 4.w),
+            padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 2.w),
             child: Tooltip(
               message: context.tr('jump_to_page'),
               child: InkWell(
@@ -66,12 +90,12 @@ class PdfTopAppBar extends StatelessWidget implements PreferredSizeWidget {
                 },
                 borderRadius: BorderRadius.circular(20.r),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                  padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: book.accentColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20.r),
                     border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: book.accentColor.withValues(alpha: 0.35),
                       width: 1,
                     ),
                   ),
@@ -80,16 +104,16 @@ class PdfTopAppBar extends StatelessWidget implements PreferredSizeWidget {
                     children: [
                       Icon(
                         Icons.edit_note_rounded,
-                        size: 16.sp,
-                        color: AppColors.primary,
+                        size: 15.sp,
+                        color: book.accentColor,
                       ),
-                      SizedBox(width: 4.w),
+                      SizedBox(width: 3.w),
                       Text(
                         '${pdfCtrl.currentPage} / ${pdfCtrl.totalPages}',
                         style: TextStyle(
-                          fontSize: 12.sp,
+                          fontSize: 11.5.sp,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                          color: book.accentColor,
                         ),
                       ),
                     ],
@@ -99,17 +123,36 @@ class PdfTopAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
 
-        // Scroll direction toggle (Vertical / Horizontal)
+        // In-book text search button
         IconButton(
           icon: Icon(
-            pdfCtrl.isVerticalScroll
-                ? Icons.view_headline_rounded
-                : Icons.view_column_rounded,
+            pdfCtrl.isSearchOpen ? Icons.search_off_rounded : Icons.search_rounded,
             size: 20.sp,
+            color: pdfCtrl.isSearchOpen ? AppColors.primary : null,
           ),
-          tooltip: context.tr('scroll_direction'),
-          onPressed: () => pdfCtrl.toggleScrollDirection(),
+          tooltip: context.tr('search'),
+          onPressed: pdfCtrl.totalPages > 0 ? pdfCtrl.toggleSearch : null,
+          visualDensity: VisualDensity.compact,
         ),
+
+        // Desktop/Tablet wide actions
+        if (isWideScreen) ...[
+          IconButton(
+            icon: Icon(
+              pdfCtrl.isPanMode ? Icons.pan_tool_alt_rounded : Icons.text_fields_rounded,
+              size: 19.sp,
+            ),
+            tooltip: context.tr(pdfCtrl.isPanMode ? 'pan_mode' : 'selection_mode'),
+            onPressed: pdfCtrl.toggleInteractionMode,
+            visualDensity: VisualDensity.compact,
+          ),
+          IconButton(
+            icon: Icon(_scrollModeIcon(pdfCtrl.scrollMode), size: 20.sp),
+            tooltip: context.tr('scroll_direction'),
+            onPressed: pdfCtrl.cycleScrollMode,
+            visualDensity: VisualDensity.compact,
+          ),
+        ],
 
         // Share document button (Bluetooth, WhatsApp, Telegram, etc.)
         Builder(
@@ -117,12 +160,13 @@ class PdfTopAppBar extends StatelessWidget implements PreferredSizeWidget {
             return IconButton(
               icon: pdfCtrl.isSharing
                   ? SizedBox(
-                      width: 18.r,
-                      height: 18.r,
+                      width: 16.r,
+                      height: 16.r,
                       child: const CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Icon(Icons.share_rounded, size: 20.sp),
+                  : Icon(Icons.share_rounded, size: 19.sp),
               tooltip: context.tr('share_document'),
+              visualDensity: VisualDensity.compact,
               onPressed: pdfCtrl.isSharing
                   ? null
                   : () async {
@@ -131,7 +175,7 @@ class PdfTopAppBar extends StatelessWidget implements PreferredSizeWidget {
                           ? box.localToGlobal(Offset.zero) & box.size
                           : null;
                       final success = await pdfCtrl.shareDocument(
-                        subject: context.tr('share_pdf_subject'),
+                        subject: '$bookTitle - ${context.tr('share_pdf_subject')}',
                         text: context.tr('share_pdf_text'),
                         sharePositionOrigin: origin,
                       );
@@ -152,17 +196,18 @@ class PdfTopAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: pdfCtrl.isPrinting
               ? SizedBox(
-                  width: 18.r,
-                  height: 18.r,
+                  width: 16.r,
+                  height: 16.r,
                   child: const CircularProgressIndicator(strokeWidth: 2),
                 )
-              : Icon(Icons.print_rounded, size: 20.sp),
+              : Icon(Icons.print_rounded, size: 19.sp),
           tooltip: context.tr('print'),
+          visualDensity: VisualDensity.compact,
           onPressed: pdfCtrl.isPrinting
               ? null
               : () async {
                   final success = await pdfCtrl.printDocument(
-                    documentName: title,
+                    documentName: bookTitle,
                   );
                   if (context.mounted && !success) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -175,16 +220,17 @@ class PdfTopAppBar extends StatelessWidget implements PreferredSizeWidget {
                 },
         ),
 
-        // Settings / Appearance & Language
+        // Settings / Appearance & Language & Scroll Mode
         IconButton(
-          icon: Icon(Icons.settings_outlined, size: 20.sp),
+          icon: Icon(Icons.settings_outlined, size: 19.sp),
           tooltip: context.tr('settings'),
+          visualDensity: VisualDensity.compact,
           onPressed: () {
             SettingsBottomSheet.show(context);
           },
         ),
 
-        SizedBox(width: 4.w),
+        SizedBox(width: 2.w),
       ],
     );
   }

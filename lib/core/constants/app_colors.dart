@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Primary brand palette (Deep elegant Navy / Emerald for reading)
+  // Primary brand palette (Deep elegant Navy / Royal Blue for Reading Book)
   static const Color primary = Color(0xFF1E3A8A);
   static const Color primaryLight = Color(0xFF3B82F6);
   static const Color primaryDark = Color(0xFF172554);
   static const Color accent = Color(0xFF0284C7);
+
+  // Activity Book palette (Deep Emerald / Teal)
+  static const Color activityPrimary = Color(0xFF0F766E);
+  static const Color activityLight = Color(0xFF14B8A6);
 
   // Surface colors
   static const Color lightBackground = Color(0xFFF8FAFC);
@@ -32,4 +36,3 @@ class AppColors {
   static const Color divider = Color(0xFFE2E8F0);
   static const Color darkDivider = Color(0xFF334155);
 }
-

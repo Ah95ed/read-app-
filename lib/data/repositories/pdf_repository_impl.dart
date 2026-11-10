@@ -31,21 +31,30 @@ class PdfRepositoryImpl implements IPdfRepository {
   @override
   Future<ReaderSettings> getReaderSettings() async {
     final lastPage = await localDataSource.getLastPage(AppConstants.defaultPdfAsset);
-    final isVertical = await localDataSource.getScrollDirection();
+    final scrollModeStr = await localDataSource.getScrollMode();
     final theme = await localDataSource.getThemeMode();
     final locale = await localDataSource.getLocale();
 
     return ReaderSettingsModel.fromValues(
       lastPage: lastPage,
-      isVerticalScroll: isVertical,
+      scrollModeStr: scrollModeStr,
       themeMode: theme,
       localeCode: locale,
     );
   }
 
   @override
-  Future<bool> saveScrollDirection(bool isVertical) {
-    return localDataSource.saveScrollDirection(isVertical);
+  Future<bool> saveScrollMode(ReaderScrollMode mode) {
+    return localDataSource.saveScrollMode(mode.name);
+  }
+
+  @override
+  Future<ReaderScrollMode> getScrollMode() async {
+    final modeStr = await localDataSource.getScrollMode();
+    return ReaderScrollMode.values.firstWhere(
+      (e) => e.name == modeStr,
+      orElse: () => ReaderScrollMode.verticalContinuous,
+    );
   }
 
   @override

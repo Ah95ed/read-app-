@@ -2,7 +2,19 @@
 const Map<String, String> translationsAr = {
   // App
   'app_title': 'قارئ الكتب الذكي',
+  'app_subtitle': 'مكتبتك التفاعلية للقراءة والأنشطة',
   'book_title': 'كتاب القراءة والتعلم',
+
+  // Book Selection
+  'choose_book': 'اختر الكتاب للمتابعة',
+  'reading_book_title': 'كتاب القراءة',
+  'reading_book_desc': 'الكتاب المنهجي الأساسي للقراءة والدراسة',
+  'activity_book_title': 'كتاب النشاط',
+  'activity_book_desc': 'كتاب التمارين والتدريبات والأنشطة التفاعلية',
+  'open_book': 'فتح الكتاب',
+  'continue_from_page': 'متابعة من صفحة {page}',
+  'start_reading': 'ابدأ القراءة',
+  'back_to_books': 'العودة لاختيار الكتاب',
 
   // Actions
   'ok': 'موافق',
@@ -15,6 +27,15 @@ const Map<String, String> translationsAr = {
   'share': 'مشاركة',
   'reset': 'إعادة ضبط',
 
+  // Search
+  'search': 'بحث في الكتاب',
+  'search_hint': 'ابحث عن كلمة أو جملة...',
+  'no_search_results': 'لا توجد نتائج مطابقة',
+  'searching': 'جاري البحث...',
+  'previous_result': 'النتيجة السابقة',
+  'next_result': 'النتيجة التالية',
+  'search_results_count': '{current} من {total}',
+
   // Sharing
   'share_document': 'مشاركة الملف (بلوتوث، واتساب، تليجرام...)',
   'share_pdf_subject': 'مشاركة كتاب PDF',
@@ -25,6 +46,8 @@ const Map<String, String> translationsAr = {
   // Page Navigation
   'page': 'صفحة',
   'page_x_of_y': 'صفحة {current} من {total}',
+  'previous_page': 'الصفحة السابقة',
+  'next_page': 'الصفحة التالية',
   'jump_to_page': 'الانتقال إلى صفحة',
   'enter_page_number': 'أدخل رقم الصفحة (1 - {total})',
   'page_number_hint': 'مثال: 10 أو 30 أو 52',
@@ -45,10 +68,14 @@ const Map<String, String> translationsAr = {
   'zoom_out': 'تصغير',
   'zoom_reset': 'إعادة التكبير',
 
-  // Scroll mode
-  'scroll_direction': 'طريقة التمرير',
-  'vertical_scroll': 'تمرير رأسي مستمر',
-  'horizontal_scroll': 'تمرير أفقي (صفحة بصفحة)',
+  // Scroll & Interaction modes
+  'scroll_direction': 'طريقة التمرير والتقليب',
+  'vertical_scroll': 'تمرير رأسي سلس',
+  'horizontal_scroll': 'تمرير أفقي سلس',
+  'single_page_flip': 'تقليب صفحة بصفحة',
+  'interaction_mode': 'وضع اللمس والتحريك',
+  'pan_mode': 'تحريك سلس (يد)',
+  'selection_mode': 'تحديد النص',
 
   // Printing
   'print_document': 'طباعة المستند',

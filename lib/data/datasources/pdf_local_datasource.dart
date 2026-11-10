@@ -4,8 +4,8 @@ import '../../core/services/storage_service.dart';
 abstract class IPdfLocalDataSource {
   Future<int> getLastPage(String documentKey);
   Future<bool> saveLastPage(String documentKey, int page);
-  Future<bool> getScrollDirection();
-  Future<bool> saveScrollDirection(bool isVertical);
+  Future<String> getScrollMode();
+  Future<bool> saveScrollMode(String mode);
   Future<String> getThemeMode();
   Future<bool> saveThemeMode(String themeMode);
   Future<String> getLocale();
@@ -30,13 +30,13 @@ class PdfLocalDataSourceImpl implements IPdfLocalDataSource {
   }
 
   @override
-  Future<bool> getScrollDirection() async {
-    return _storageService.getBool(AppConstants.keyScrollDirection) ?? true;
+  Future<String> getScrollMode() async {
+    return _storageService.getString(AppConstants.keyScrollMode) ?? 'verticalContinuous';
   }
 
   @override
-  Future<bool> saveScrollDirection(bool isVertical) async {
-    return _storageService.setBool(AppConstants.keyScrollDirection, isVertical);
+  Future<bool> saveScrollMode(String mode) async {
+    return _storageService.setString(AppConstants.keyScrollMode, mode);
   }
 
   @override
@@ -59,4 +59,3 @@ class PdfLocalDataSourceImpl implements IPdfLocalDataSource {
     return _storageService.setString(AppConstants.keyLocale, localeCode);
   }
 }
-
