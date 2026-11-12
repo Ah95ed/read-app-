@@ -97,4 +97,13 @@ const Map<String, String> translationsAr = {
   'retry': 'إعادة المحاولة',
   'total_pages': 'إجمالي الصفحات: {count}',
   'current_zoom': 'مستوى العرض: {percent}%',
+
+  // Internal Storage Transfer (Startup)
+  'preparing_library': 'جاري تجهيز المكتبة...',
+  'transferring_books_subtitle': 'يتم الآن نقل الكتب إلى ذاكرة التطبيق الداخلية لسرعة القراءة والأداء',
+  'copying_book_item': 'جاري نقل: {title}',
+  'verifying_book_item': 'جاري التحقق من: {title}',
+  'library_ready': 'تم تجهيز الكتب بنجاح',
+  'storage_transfer_failed': 'تعذر نقل ملفات الكتب إلى ذاكرة الجهاز الداخلية',
+  'stored_locally_badge': 'محفوظ في ذاكرة التطبيق',
 };

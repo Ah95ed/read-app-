@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -222,6 +225,7 @@ class _PdfViewerViewState extends State<PdfViewerView> {
 class _PdfCanvasConfig {
   final bool isReady;
   final String assetPath;
+  final String? localFilePath;
   final int initialPageNumber;
   final PdfScrollDirection scrollDirection;
   final PdfPageLayoutMode pageLayoutMode;
@@ -230,6 +234,7 @@ class _PdfCanvasConfig {
   const _PdfCanvasConfig({
     required this.isReady,
     required this.assetPath,
+    required this.localFilePath,
     required this.initialPageNumber,
     required this.scrollDirection,
     required this.pageLayoutMode,
@@ -241,6 +246,7 @@ class _PdfCanvasConfig {
     return other is _PdfCanvasConfig &&
         isReady == other.isReady &&
         assetPath == other.assetPath &&
+        localFilePath == other.localFilePath &&
         scrollDirection == other.scrollDirection &&
         pageLayoutMode == other.pageLayoutMode &&
         interactionMode == other.interactionMode;
@@ -250,6 +256,7 @@ class _PdfCanvasConfig {
   int get hashCode => Object.hash(
         isReady,
         assetPath,
+        localFilePath,
         scrollDirection,
         pageLayoutMode,
         interactionMode,
@@ -267,6 +274,7 @@ class _SmoothPdfCanvas extends StatelessWidget {
       selector: (_, ctrl) => _PdfCanvasConfig(
         isReady: ctrl.isReady,
         assetPath: ctrl.assetPath,
+        localFilePath: ctrl.localFilePath,
         initialPageNumber: ctrl.initialPageNumber,
         scrollDirection: ctrl.pdfScrollDirection,
         pageLayoutMode: ctrl.pdfPageLayoutMode,
@@ -277,9 +285,44 @@ class _SmoothPdfCanvas extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
+        final sourceKey = config.localFilePath ?? config.assetPath;
+        final viewerKey = ValueKey(
+          '${sourceKey}_${config.scrollDirection}_${config.pageLayoutMode}',
+        );
+        final enableTextSelection =
+            config.interactionMode == PdfInteractionMode.selection;
+
+        if (!kIsWeb &&
+            config.localFilePath != null &&
+            config.localFilePath!.isNotEmpty) {
+          return SfPdfViewer.file(
+            File(config.localFilePath!),
+            key: viewerKey,
+            controller: pdfCtrl.pdfViewerController,
+            initialPageNumber: config.initialPageNumber,
+            maxZoomLevel: AppConstants.maxZoom,
+            pageSpacing: 6,
+            scrollDirection: config.scrollDirection,
+            pageLayoutMode: config.pageLayoutMode,
+            interactionMode: config.interactionMode,
+            enableTextSelection: enableTextSelection,
+            canShowScrollHead: true,
+            canShowScrollStatus: true,
+            canShowPaginationDialog: false,
+            enableDoubleTapZooming: true,
+            onDocumentLoaded: (details) => pdfCtrl.onDocumentLoaded(details),
+            onPageChanged: (details) =>
+                pdfCtrl.onPageChanged(details.newPageNumber),
+            onZoomLevelChanged: (details) =>
+                pdfCtrl.syncZoomFromViewer(details.newZoomLevel),
+            onDocumentLoadFailed: (details) =>
+                pdfCtrl.onDocumentLoadFailed(details),
+          );
+        }
+
         return SfPdfViewer.asset(
           config.assetPath,
-          key: ValueKey('${config.assetPath}_${config.scrollDirection}_${config.pageLayoutMode}'),
+          key: viewerKey,
           controller: pdfCtrl.pdfViewerController,
           initialPageNumber: config.initialPageNumber,
           maxZoomLevel: AppConstants.maxZoom,
@@ -287,7 +330,7 @@ class _SmoothPdfCanvas extends StatelessWidget {
           scrollDirection: config.scrollDirection,
           pageLayoutMode: config.pageLayoutMode,
           interactionMode: config.interactionMode,
-          enableTextSelection: config.interactionMode == PdfInteractionMode.selection,
+          enableTextSelection: enableTextSelection,
           canShowScrollHead: true,
           canShowScrollStatus: true,
           canShowPaginationDialog: false,

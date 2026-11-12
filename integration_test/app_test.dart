@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -5,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import 'package:book_iq/main.dart' as app;
+import 'package:book_iq/presentation/controllers/books_controller.dart';
 import 'package:book_iq/presentation/controllers/pdf_controller.dart';
 import 'package:book_iq/presentation/views/book_selection_view.dart';
 import 'package:book_iq/presentation/views/pdf_viewer_view.dart';
@@ -13,11 +16,28 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets(
-      'Full End-to-End: Reading & Activity books open, render pages, jump, search, and save progress',
+      'Full End-to-End: Reading & Activity books transfer to internal storage, open, render pages, jump, search, and save progress',
       (WidgetTester tester) async {
     app.main();
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 200));
+    }
+
+    // Wait for asset-to-internal-storage transfer to finish cleanly
+    final homeCtx = tester.element(find.byType(BookSelectionView));
+    final booksCtrl = homeCtx.read<BooksController>();
+    for (int i = 0; i < 30 && booksCtrl.isPreparingStorage; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    expect(booksCtrl.storageError, isNull);
+    expect(booksCtrl.isPreparingStorage, isFalse);
+
+    // Verify both books are stored inside app-private hidden internal storage
+    for (final book in booksCtrl.books) {
+      expect(book.localPath, isNotNull);
+      expect(book.localPath!, contains('.books_vault'));
+      expect(File(book.localPath!).existsSync(), isTrue);
+      expect(File(book.localPath!).lengthSync(), greaterThan(1000000));
     }
 
     // 1. Verify BookSelectionView renders both books cleanly

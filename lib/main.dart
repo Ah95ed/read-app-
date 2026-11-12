@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 import 'core/localization/app_localizations.dart';
+import 'core/services/pdf_storage_service.dart';
 import 'core/services/print_service.dart';
 import 'core/services/share_service.dart';
 import 'core/services/storage_service.dart';
@@ -11,6 +12,7 @@ import 'data/datasources/pdf_local_datasource.dart';
 import 'data/repositories/pdf_repository_impl.dart';
 import 'domain/repositories/pdf_repository.dart';
 import 'domain/usecases/get_saved_page_usecase.dart';
+import 'domain/usecases/prepare_books_usecase.dart';
 import 'domain/usecases/print_pdf_usecase.dart';
 import 'domain/usecases/save_page_usecase.dart';
 import 'domain/usecases/scroll_mode_usecase.dart';
@@ -27,6 +29,7 @@ void main() async {
   final storageService = await StorageService.init();
   const printService = PrintService();
   const shareService = ShareService();
+  const pdfStorageService = PdfStorageService();
 
   // Initialize Data Layer
   final IPdfLocalDataSource localDataSource = PdfLocalDataSourceImpl(
@@ -36,9 +39,11 @@ void main() async {
     localDataSource: localDataSource,
     printService: printService,
     shareService: shareService,
+    pdfStorageService: pdfStorageService,
   );
 
   // Initialize Domain Use Cases
+  final prepareBooksUseCase = PrepareBooksUseCase(pdfRepository);
   final getSavedPageUseCase = GetSavedPageUseCase(pdfRepository);
   final savePageUseCase = SavePageUseCase(pdfRepository);
   final printPdfUseCase = PrintPdfUseCase(pdfRepository);
@@ -52,8 +57,10 @@ void main() async {
           create: (_) => AppSettingsController(storageService),
         ),
         ChangeNotifierProvider<BooksController>(
-          create: (_) =>
-              BooksController(getSavedPageUseCase: getSavedPageUseCase),
+          create: (_) => BooksController(
+            getSavedPageUseCase: getSavedPageUseCase,
+            prepareBooksUseCase: prepareBooksUseCase,
+          ),
         ),
         ChangeNotifierProvider<PdfReaderController>(
           create: (_) => PdfReaderController(

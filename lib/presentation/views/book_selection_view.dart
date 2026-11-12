@@ -117,7 +117,9 @@ class BookSelectionView extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: LayoutBuilder(
+        child: (booksCtrl.isPreparingStorage || booksCtrl.storageError != null)
+            ? _LibraryTransferView(booksCtrl: booksCtrl)
+            : LayoutBuilder(
           builder: (context, constraints) {
             final isWide = constraints.maxWidth >= 680;
             final books = booksCtrl.books;
@@ -376,6 +378,154 @@ class _BookSelectionCard extends StatelessWidget {
                 ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryTransferView extends StatelessWidget {
+  final BooksController booksCtrl;
+
+  const _LibraryTransferView({required this.booksCtrl});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final hasError = booksCtrl.storageError != null;
+    final progress = booksCtrl.preparationProgress.clamp(0.0, 1.0);
+    final percent = (progress * 100).round();
+    final currentKey = booksCtrl.currentTransferTitleKey;
+    final currentBookTitle = currentKey != null ? context.tr(currentKey) : '';
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 460),
+          child: Card(
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24.r),
+              side: BorderSide(
+                color: (hasError ? theme.colorScheme.error : AppColors.primary)
+                    .withValues(alpha: 0.2),
+              ),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(24.r),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(16.r),
+                    decoration: BoxDecoration(
+                      color: (hasError ? theme.colorScheme.error : AppColors.primary)
+                          .withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      hasError
+                          ? Icons.error_outline_rounded
+                          : Icons.folder_copy_rounded,
+                      size: 40.sp.clamp(34.0, 52.0),
+                      color: hasError ? theme.colorScheme.error : AppColors.primary,
+                    ),
+                  ),
+                  SizedBox(height: 18.h),
+                  Text(
+                    context.tr(
+                      hasError ? 'storage_transfer_failed' : 'preparing_library',
+                    ),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18.sp.clamp(16.0, 22.0),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    context.tr('transferring_books_subtitle'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13.sp.clamp(12.0, 15.0),
+                      color: theme.textTheme.bodyMedium?.color
+                          ?.withValues(alpha: 0.72),
+                      height: 1.45,
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  if (!hasError) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.r),
+                      child: LinearProgressIndicator(
+                        value: progress > 0 ? progress : 0.1,
+                        minHeight: 10.h.clamp(8.0, 12.0),
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.14),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          AppColors.primary,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            currentBookTitle.isNotEmpty
+                                ? context.tr(
+                                    'copying_book_item',
+                                    args: {'title': currentBookTitle},
+                                  )
+                                : '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12.sp.clamp(11.0, 14.0),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10.w),
+                        Text(
+                          '$percent% (${booksCtrl.completedTransferCount}/${booksCtrl.totalTransferCount})',
+                          style: TextStyle(
+                            fontSize: 12.sp.clamp(11.0, 14.0),
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: booksCtrl.initializeLibrary,
+                        icon: Icon(Icons.refresh_rounded, size: 18.sp),
+                        label: Text(
+                          context.tr('retry'),
+                          style: TextStyle(
+                            fontSize: 14.sp.clamp(13.0, 16.0),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14.r),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
       ),

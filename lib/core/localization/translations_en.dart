@@ -97,4 +97,13 @@ const Map<String, String> translationsEn = {
   'retry': 'Retry',
   'total_pages': 'Total Pages: {count}',
   'current_zoom': 'Zoom Level: {percent}%',
+
+  // Internal Storage Transfer (Startup)
+  'preparing_library': 'Preparing Library...',
+  'transferring_books_subtitle': 'Transferring books to app internal storage for faster reading performance',
+  'copying_book_item': 'Transferring: {title}',
+  'verifying_book_item': 'Verifying: {title}',
+  'library_ready': 'Books ready in internal storage',
+  'storage_transfer_failed': 'Failed to transfer book files to internal device storage',
+  'stored_locally_badge': 'Stored Internally',
 };

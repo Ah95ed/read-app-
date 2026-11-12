@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,12 +10,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:book_iq/core/constants/app_constants.dart';
 import 'package:book_iq/core/localization/app_localizations.dart';
+import 'package:book_iq/core/services/pdf_storage_service.dart';
 import 'package:book_iq/core/services/print_service.dart';
 import 'package:book_iq/core/services/share_service.dart';
 import 'package:book_iq/core/services/storage_service.dart';
 import 'package:book_iq/data/datasources/pdf_local_datasource.dart';
 import 'package:book_iq/data/repositories/pdf_repository_impl.dart';
 import 'package:book_iq/domain/usecases/get_saved_page_usecase.dart';
+import 'package:book_iq/domain/usecases/prepare_books_usecase.dart';
 import 'package:book_iq/domain/usecases/print_pdf_usecase.dart';
 import 'package:book_iq/domain/usecases/save_page_usecase.dart';
 import 'package:book_iq/domain/usecases/scroll_mode_usecase.dart';
@@ -57,11 +62,25 @@ void main() {
         '${AppConstants.keyLastPage}_${AppConstants.activityPdfAsset}': 7,
       });
 
+      final tempDir = Directory.systemTemp.createTempSync('book_iq_widget_test_');
+      addTearDown(() {
+        if (tempDir.existsSync()) {
+          tempDir.deleteSync(recursive: true);
+        }
+      });
+
       final storage = await StorageService.init();
+      final pdfStorageService = PdfStorageService(
+        baseDirectoryProvider: () async => tempDir,
+        assetLoader: (_) async => ByteData.sublistView(
+          Uint8List.fromList([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x37]),
+        ),
+      );
       final repo = PdfRepositoryImpl(
         localDataSource: PdfLocalDataSourceImpl(storage),
         printService: const PrintService(),
         shareService: const ShareService(),
+        pdfStorageService: pdfStorageService,
       );
 
       await tester.pumpWidget(
@@ -71,6 +90,7 @@ void main() {
             ChangeNotifierProvider(
               create: (_) => BooksController(
                 getSavedPageUseCase: GetSavedPageUseCase(repo),
+                prepareBooksUseCase: PrepareBooksUseCase(repo),
               ),
             ),
             ChangeNotifierProvider(
@@ -96,6 +116,16 @@ void main() {
         ),
       );
 
+      // Initial frame shows loading transfer screen, then completes to library cards
+      expect(find.text('جاري تجهيز المكتبة...'), findsOneWidget);
+
+      final booksCtrl = tester.element(find.byType(BookSelectionView)).read<BooksController>();
+      for (int i = 0; i < 100 && booksCtrl.isPreparingStorage; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+        await tester.pump();
+      }
+      expect(booksCtrl.storageError, isNull);
+      expect(booksCtrl.isPreparingStorage, isFalse);
       await tester.pumpAndSettle();
 
       // Verify both books and their independent saved progress appear

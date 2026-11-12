@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/services/pdf_storage_service.dart';
 import '../../core/services/print_service.dart';
 import '../../core/services/share_service.dart';
+import '../../domain/entities/book_entity.dart';
 import '../../domain/entities/reader_settings.dart';
 import '../../domain/repositories/pdf_repository.dart';
 import '../datasources/pdf_local_datasource.dart';
@@ -11,12 +13,37 @@ class PdfRepositoryImpl implements IPdfRepository {
   final IPdfLocalDataSource localDataSource;
   final PrintService printService;
   final ShareService shareService;
+  final PdfStorageService pdfStorageService;
 
   PdfRepositoryImpl({
     required this.localDataSource,
     required this.printService,
     required this.shareService,
+    this.pdfStorageService = const PdfStorageService(),
   });
+
+  @override
+  Future<List<BookEntity>> prepareBooksInInternalStorage(
+    List<BookEntity> books, {
+    BookTransferProgressCallback? onProgress,
+  }) async {
+    final prepared = <BookEntity>[];
+    final total = books.length;
+
+    for (int i = 0; i < total; i++) {
+      final book = books[i];
+      onProgress?.call(i, total, book);
+
+      final localPath = await pdfStorageService.ensureBookStored(
+        assetPath: book.assetPath,
+        fileName: book.fileName,
+      );
+      prepared.add(book.copyWith(localPath: localPath));
+      onProgress?.call(i + 1, total, book);
+    }
+
+    return prepared;
+  }
 
   @override
   Future<int> getLastSavedPage(String documentKey) {
@@ -70,10 +97,12 @@ class PdfRepositoryImpl implements IPdfRepository {
   @override
   Future<bool> printDocument({
     required String assetPath,
+    String? localPath,
     required String documentName,
   }) {
     return printService.printAssetPdf(
       assetPath: assetPath,
+      localPath: localPath,
       documentName: documentName,
     );
   }
@@ -81,6 +110,7 @@ class PdfRepositoryImpl implements IPdfRepository {
   @override
   Future<bool> shareDocument({
     required String assetPath,
+    String? localPath,
     String? subject,
     String? text,
     String fileName = 'book.pdf',
@@ -88,6 +118,7 @@ class PdfRepositoryImpl implements IPdfRepository {
   }) {
     return shareService.shareAssetPdf(
       assetPath: assetPath,
+      localPath: localPath,
       subject: subject,
       text: text,
       fileName: fileName,

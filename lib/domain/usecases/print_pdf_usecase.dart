@@ -7,12 +7,13 @@ class PrintPdfUseCase {
 
   Future<bool> execute({
     required String assetPath,
+    String? localPath,
     required String documentName,
   }) {
     return _repository.printDocument(
       assetPath: assetPath,
+      localPath: localPath,
       documentName: documentName,
     );
   }
 }
-

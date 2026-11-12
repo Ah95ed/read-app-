@@ -58,6 +58,7 @@ class PdfReaderController extends ChangeNotifier {
   // Getters
   BookEntity get currentBook => _currentBook;
   String get assetPath => _currentBook.assetPath;
+  String? get localFilePath => _currentBook.localPath;
   bool get isReady => _isReady;
   int get initialPageNumber => _initialPageNumber;
   int get currentPage => _currentPage;
@@ -362,6 +363,7 @@ class PdfReaderController extends ChangeNotifier {
     try {
       final success = await printPdfUseCase.execute(
         assetPath: _currentBook.assetPath,
+        localPath: _currentBook.localPath,
         documentName: documentName,
       );
       _isPrinting = false;
@@ -387,6 +389,7 @@ class PdfReaderController extends ChangeNotifier {
     try {
       final success = await sharePdfUseCase.execute(
         assetPath: _currentBook.assetPath,
+        localPath: _currentBook.localPath,
         subject: subject,
         text: text,
         fileName: _currentBook.fileName,

@@ -15,6 +15,7 @@ class BookEntity {
   final Color accentColor;
   final IconData icon;
   final int lastSavedPage;
+  final String? localPath;
 
   const BookEntity({
     required this.id,
@@ -26,9 +27,13 @@ class BookEntity {
     required this.accentColor,
     required this.icon,
     this.lastSavedPage = 1,
+    this.localPath,
   });
 
-  BookEntity copyWith({int? lastSavedPage}) {
+  BookEntity copyWith({
+    int? lastSavedPage,
+    String? localPath,
+  }) {
     return BookEntity(
       id: id,
       titleKey: titleKey,
@@ -39,6 +44,7 @@ class BookEntity {
       accentColor: accentColor,
       icon: icon,
       lastSavedPage: lastSavedPage ?? this.lastSavedPage,
+      localPath: localPath ?? this.localPath,
     );
   }
 

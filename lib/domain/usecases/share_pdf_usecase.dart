@@ -8,6 +8,7 @@ class SharePdfUseCase {
 
   Future<bool> execute({
     required String assetPath,
+    String? localPath,
     String? subject,
     String? text,
     String fileName = 'book.pdf',
@@ -15,6 +16,7 @@ class SharePdfUseCase {
   }) {
     return repository.shareDocument(
       assetPath: assetPath,
+      localPath: localPath,
       subject: subject,
       text: text,
       fileName: fileName,
@@ -22,4 +24,3 @@ class SharePdfUseCase {
     );
   }
 }
-
